@@ -1,0 +1,10 @@
+{
+  "folders": [
+    { "path": "backend" },
+    { "path": "admin-web" },
+    { "path": "restaurant-web" },
+    { "path": "customer-app" },
+    { "path": "driver-app" }
+  ],
+  "settings": {}
+}
