@@ -4,9 +4,15 @@ const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    
+    // --- NEW PROFILE FEATURES ---
+    phone: { type: String, default: "" },
+    address: { type: String, default: "" },
+    // ----------------------------
+
     role: { 
         type: String, 
-        enum: ['customer', 'driver', 'restaurant', 'admin'], // These are the 4 roles!
+        enum: ['customer', 'driver', 'restaurant', 'admin'],
         default: 'customer' 
     }
 }, { timestamps: true });

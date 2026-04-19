@@ -1,32 +1,38 @@
 const express = require('express');
-const Restaurant = require('../models/Restaurant');
-const verifyToken = require('../middleware/authMiddleware'); // Our Bouncer!
+const Restaurant = require('../models/restaurant');
+const verifyToken = require('../middleware/authMiddleware');
+const upload = require('../middleware/upload'); // NEW: Import the Uploader!
 
 const router = express.Router();
 
-// --- CREATE A RESTAURANT (Requires Login) ---
-router.post('/', verifyToken, async (req, res) => {
+// --- CREATE A RESTAURANT WITH IMAGE ---
+router.post('/', verifyToken, upload.single('image'), async (req, res) => {
     try {
-        const { name, address, image } = req.body;
+        const { name, address, category, deliveryTime, deliveryFee } = req.body;
 
-        // Create the restaurant and assign the logged-in user as the owner
         const newRestaurant = new Restaurant({
             name,
             address,
-            image,
-            owner: req.user.userId // This comes from our Bouncer (the token)
+            category: category || "Fast Food",
+            deliveryTime: deliveryTime || "25-35 min",
+            deliveryFee: deliveryFee || 150,
+            
+            // NEW: If a file was uploaded, save the secure Cloudinary URL!
+            image: req.file ? req.file.path : "", 
+            
+            owner: req.user.userId 
         });
 
         await newRestaurant.save();
         res.status(201).json({ message: "Restaurant created!", restaurant: newRestaurant });
 
     } catch (error) {
-        console.error(error);
+        console.error("Restaurant Creation Error:", error);
         res.status(500).json({ message: "Server error" });
     }
 });
 
-// --- GET ALL RESTAURANTS (Public - for the Customer App) ---
+// --- GET ALL RESTAURANTS ---
 router.get('/', async (req, res) => {
     try {
         const restaurants = await Restaurant.find().populate('owner', 'name email');

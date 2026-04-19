@@ -1,38 +1,68 @@
-import { useContext, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useContext, useState, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator, TextInput, Alert } from 'react-native';
 import axios from 'axios';
 import { CartContext } from '../CartContext';
+
+// ⚠️ CHANGE THIS TO YOUR EXACT IP ADDRESS!
+const API_URL = 'http://10.253.78.175:5000';
+const BRAND_COLOR = '#D70F64';
 
 export default function CartScreen({ navigation }) {
   const { cart, getTotalPrice, token, setCart } = useContext(CartContext);
   const [loading, setLoading] = useState(false);
+  
+  // NEW: Address and Payment States
+  const [address, setAddress] = useState('');
+  const[paymentMethod, setPaymentMethod] = useState('COD');
+
+  // NEW: Fetch user's saved address automatically!
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/auth/my-profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (response.data.address) {
+          setAddress(response.data.address); // Pre-fill the address!
+        }
+      } catch (error) {
+        console.error("Could not fetch address");
+      }
+    };
+    if (token) fetchProfile();
+  }, [token]);
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
+    
+    // Security check: Make sure they have an address!
+    if (!address.trim()) {
+      Alert.alert("Missing Address", "Please enter a delivery address.");
+      return;
+    }
+    
     setLoading(true);
 
     try {
-      // 1. Format the data to match what our Backend Order Model expects
       const orderData = {
-        restaurantId: cart[0].restaurantId, // Assuming all items are from the same restaurant
+        restaurantId: cart[0].restaurantId,
         items: cart.map(item => ({
           menuItem: item._id,
-          quantity: 1
+          quantity: 1,
+          customizations: item.selectedOptions ? item.selectedOptions.map(opt => opt.name) :[]
         })),
         totalAmount: getTotalPrice(),
-        deliveryAddress: "123 Mobile Phone Street" // Hardcoded for now
+        deliveryAddress: address, // Sends the typed/fetched address!
+        paymentMethod: paymentMethod // Sends COD or Card!
       };
 
-      // 2. Send the Order! (Showing our VIP pass)
-      await axios.post('http://localhost:5000/api/orders', orderData, {
+      await axios.post(`${API_URL}/api/orders`, orderData, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // 3. Success! Clear cart and go home
-      alert("🎉 Order Placed Successfully!");
-      setCart([]); // Empty the cart memory
+      setCart([]);
       setLoading(false);
-      navigation.navigate('Home');
+      navigation.replace('Tracking'); // Jump to Live Tracking
 
     } catch (error) {
       console.error(error);
@@ -43,8 +73,13 @@ export default function CartScreen({ navigation }) {
 
   const renderCartItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.itemName}>{item.name}</Text>
-      <Text style={styles.itemPrice}>${item.price}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.itemName}>{item.name}</Text>
+        {item.selectedOptions && item.selectedOptions.map((opt, idx) => (
+          <Text key={idx} style={styles.addonText}>+ {opt.name}</Text>
+        ))}
+      </View>
+      <Text style={styles.itemPrice}>Rs. {item.cartItemPrice || item.price}</Text>
     </View>
   );
 
@@ -60,10 +95,42 @@ export default function CartScreen({ navigation }) {
             data={cart}
             keyExtractor={(item, index) => index.toString()}
             renderItem={renderCartItem}
+            contentContainerStyle={{ paddingBottom: 20 }}
           />
           
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalText}>Total: ${getTotalPrice()}</Text>
+          {/* --- THE CHECKOUT PANEL --- */}
+          <View style={styles.checkoutPanel}>
+            
+            {/* Address Input */}
+            <Text style={styles.label}>Delivery Address</Text>
+            <TextInput 
+              style={styles.input} 
+              placeholder="Enter delivery address..." 
+              value={address} 
+              onChangeText={setAddress} 
+            />
+
+            {/* Payment Method Selector */}
+            <Text style={styles.label}>Payment Method</Text>
+            <View style={styles.paymentRow}>
+              <TouchableOpacity 
+                style={[styles.payButton, paymentMethod === 'COD' && styles.payButtonActive]}
+                onPress={() => setPaymentMethod('COD')}
+              >
+                <Text style={[styles.payText, paymentMethod === 'COD' && styles.payTextActive]}>Cash on Delivery</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.payButton, paymentMethod === 'Card' && styles.payButtonActive]}
+                onPress={() => setPaymentMethod('Card')}
+              >
+                <Text style={[styles.payText, paymentMethod === 'Card' && styles.payTextActive]}>Credit Card</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ height: 1, backgroundColor: '#eee', marginVertical: 15 }} />
+
+            <Text style={styles.totalText}>Total: Rs. {getTotalPrice()}</Text>
             
             <TouchableOpacity 
               style={styles.checkoutButton}
@@ -73,7 +140,7 @@ export default function CartScreen({ navigation }) {
               {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text style={styles.checkoutText}>Complete Checkout</Text>
+                <Text style={styles.checkoutText}>Place Order</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -86,11 +153,22 @@ export default function CartScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5f5' },
   title: { fontSize: 20, fontWeight: 'bold', margin: 20, color: '#333' },
-  card: { backgroundColor: 'white', padding: 15, marginHorizontal: 20, marginBottom: 10, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', elevation: 1 },
-  itemName: { fontSize: 16 },
-  itemPrice: { fontSize: 16, fontWeight: 'bold', color: '#28a745' },
-  totalContainer: { backgroundColor: 'white', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 10 },
+  card: { backgroundColor: 'white', padding: 15, marginHorizontal: 20, marginBottom: 10, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', elevation: 1 },
+  itemName: { fontSize: 16, fontWeight: 'bold' },
+  addonText: { fontSize: 12, color: '#777', marginTop: 2, fontStyle: 'italic' },
+  itemPrice: { fontSize: 16, fontWeight: 'bold', color: BRAND_COLOR },
+  
+  checkoutPanel: { backgroundColor: 'white', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 10 },
+  label: { fontSize: 14, fontWeight: 'bold', color: '#555', marginBottom: 5 },
+  input: { backgroundColor: '#f9f9f9', padding: 12, borderRadius: 8, marginBottom: 15, borderWidth: 1, borderColor: '#eee' },
+  
+  paymentRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
+  payButton: { flex: 1, padding: 10, borderRadius: 8, borderWidth: 1, borderColor: '#ccc', alignItems: 'center' },
+  payButtonActive: { backgroundColor: BRAND_COLOR, borderColor: BRAND_COLOR },
+  payText: { fontWeight: 'bold', color: '#555' },
+  payTextActive: { color: 'white' },
+  
   totalText: { fontSize: 22, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
-  checkoutButton: { backgroundColor: '#ff4757', padding: 15, borderRadius: 10, alignItems: 'center' },
+  checkoutButton: { backgroundColor: BRAND_COLOR, padding: 15, borderRadius: 10, alignItems: 'center' },
   checkoutText: { color: 'white', fontSize: 18, fontWeight: 'bold' }
 });

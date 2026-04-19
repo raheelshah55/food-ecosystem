@@ -3,26 +3,28 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'reac
 import axios from 'axios';
 import { CartContext } from '../CartContext';
 
+// ⚠️ MAKE SURE THIS IS YOUR CURRENT LAPTOP IP ADDRESS
+const API_URL = 'http://10.253.78.175:5000';
+const BRAND_COLOR = '#D70F64';
+
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('admin@test.com'); // Pre-filled for fast testing!
+  const[email, setEmail] = useState('admin@test.com'); 
   const [password, setPassword] = useState('password123');
   
-  const { setToken } = useContext(CartContext); // Get the save-token function
+  const { setToken } = useContext(CartContext); 
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post(`${API_URL}/api/auth/login`, {
         email,
         password
       });
 
-      // Save the token to our global memory!
       setToken(response.data.token);
-      
-      // Go to Home screen
       navigation.replace('Home');
     } catch (error) {
-      alert(error.response?.data?.message || 'Login failed');
+      console.log("LOGIN ERROR: ", error); // This prints the error to your VS Code terminal!
+      alert("Login failed! Is your phone on the same Wi-Fi as your laptop?");
     }
   };
 
@@ -54,8 +56,8 @@ export default function LoginScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f5f5f5' },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: '#ff4757' },
+  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 30, textAlign: 'center', color: BRAND_COLOR },
   input: { backgroundColor: 'white', padding: 15, borderRadius: 10, marginBottom: 15, fontSize: 16, elevation: 2 },
-  button: { backgroundColor: '#ff4757', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
+  button: { backgroundColor: BRAND_COLOR, padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
   buttonText: { color: 'white', fontSize: 18, fontWeight: 'bold' }
 });

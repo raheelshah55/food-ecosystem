@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
 function Dashboard() {
-  const [orders, setOrders] = useState([]);
+  const[orders, setOrders] = useState([]);
   const navigate = useNavigate();
 
   const fetchOrders = async () => {
@@ -24,18 +24,13 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    fetchOrders(); // Fetch immediately on load
+    fetchOrders(); 
 
-    // Connect to the Backend Socket
     const socket = io('http://localhost:5000');
-    
-    // Listen for the magic signal
     socket.on('orderUpdated', () => {
-      console.log('🔔 Received socket signal: Order Updated! Refetching...');
       fetchOrders(); 
     });
 
-    // Cleanup when leaving the page
     return () => socket.disconnect();
   }, [navigate]);
 
@@ -46,6 +41,12 @@ function Dashboard() {
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
+      // FIX: Instantly update the screen without waiting for the Socket!
+      setOrders(orders.map(order => 
+        order._id === orderId ? { ...order, status: newStatus } : order
+      ));
+      
     } catch (error) {
       console.error("Error updating status:", error);
     }
@@ -75,8 +76,8 @@ function Dashboard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <strong>Order #{order._id.slice(-6)}</strong>
                 <span style={{ 
-                  backgroundColor: order.status === 'Pending' ? '#ffc107' : order.status === 'Preparing' ? '#17a2b8' : '#28a745', 
-                  color: order.status === 'Pending' ? 'black' : 'white',
+                  backgroundColor: order.status === 'Pending' ? '#D70F64' : order.status === 'Preparing' ? '#17a2b8' : '#28a745', 
+                  color: 'white',
                   padding: '5px 10px', borderRadius: '4px', fontWeight: 'bold' 
                 }}>
                   {order.status}
@@ -85,13 +86,22 @@ function Dashboard() {
               
               <p style={{ margin: '10px 0' }}><strong>Customer:</strong> {order.customer?.name || 'Unknown'}</p>
               
+              {/* --- HERE IS THE NEW ADD-ONS DISPLAY! --- */}
               <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
                 {order.items.map((item, index) => (
-                  <li key={index}>
-                    {item.quantity}x {item.menuItem?.name} 
+                  <li key={index} style={{ marginBottom: '8px' }}>
+                    <strong>{item.quantity}x {item.menuItem?.name}</strong>
+                    
+                    {/* If the customer picked add-ons, show them in gray text! */}
+                    {item.customizations && item.customizations.length > 0 && (
+                      <div style={{ fontSize: '14px', color: '#666', marginTop: '4px', fontStyle: 'italic' }}>
+                        + {item.customizations.join(', ')}
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
+              {/* ---------------------------------------- */}
               
               <p style={{ margin: '0 0 15px 0', fontSize: '18px' }}><strong>Total: ${order.totalAmount}</strong></p>
 

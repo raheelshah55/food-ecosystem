@@ -1,3 +1,5 @@
+import ProfileScreen from './screens/ProfileScreen';
+import TrackingScreen from './screens/TrackingScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CartProvider } from './CartContext';
@@ -17,7 +19,7 @@ export default function App() {
         <Stack.Navigator 
           initialRouteName="Login" 
           screenOptions={{
-            headerStyle: { backgroundColor: '#ff4757' },
+            headerStyle: { backgroundColor: '#D70F64' },
             headerTintColor: '#fff',
             headerTitleStyle: { fontWeight: 'bold' },
           }}
@@ -26,6 +28,8 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} options={{ title: '🍔 FoodDelivery' }} />
           <Stack.Screen name="Menu" component={MenuScreen} options={{ title: 'Menu' }} />
           <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Your Cart' }} />
+          <Stack.Screen name="Tracking" component={TrackingScreen} options={{ title: 'Live Tracking' }} />
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'My Profile' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </CartProvider>

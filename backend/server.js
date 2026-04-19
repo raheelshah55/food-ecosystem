@@ -12,13 +12,19 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: '*' } // Allow all of our apps to connect
 });
-
-// Make 'io' available inside our routes!
 app.set('io', io);
-
+// Make 'io' available inside our routes!
 io.on('connection', (socket) => {
     console.log('🔌 A device connected to Sockets:', socket.id);
     
+    // --- NEW: CATCH DRIVER GPS AND FORWARD IT TO CUSTOMERS ---
+    socket.on('driverLocationUpdate', (data) => {
+        // data contains: { orderId, latitude, longitude }
+        // We instantly broadcast this to everyone listening!
+        io.emit('liveTracking', data); 
+    });
+    // ---------------------------------------------------------
+
     socket.on('disconnect', () => {
         console.log('Device disconnected');
     });
