@@ -125,5 +125,21 @@ router.get('/admin/all', verifyToken, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
-// forcing update
+// --- GET DRIVER'S ACTIVE DELIVERY ---
+router.get('/driver/active', verifyToken, async (req, res) => {
+    try {
+        // Find an order that belongs to this driver AND is currently Out for Delivery
+        const activeOrder = await Order.findOne({ 
+            driver: req.user.userId, 
+            status: 'Out for Delivery' 
+        })
+        .populate('restaurant', 'name address')
+        .populate('customer', 'name');
+            
+        res.status(200).json(activeOrder); // Sends the order, or 'null' if they don't have one
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
 module.exports = router;

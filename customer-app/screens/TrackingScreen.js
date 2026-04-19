@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 import MapView, { Marker } from 'react-native-maps';
 
 // ⚠️ CHANGE THIS TO YOUR IP ADDRESS
-const API_URL = 'http://10.253.78.175:5000';
+const API_URL = 'https://food-ecosystem-api.onrender.com';
 
 // Global Socket Connection
 const socket = io(API_URL, { transports: ['websocket'] });

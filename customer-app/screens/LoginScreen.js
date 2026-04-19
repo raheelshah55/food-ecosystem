@@ -4,7 +4,7 @@ import axios from 'axios';
 import { CartContext } from '../CartContext';
 
 // ⚠️ MAKE SURE THIS IS YOUR CURRENT LAPTOP IP ADDRESS
-const API_URL = 'http://10.253.78.175:5000';
+const API_URL = 'https://food-ecosystem-api.onrender.com';
 const BRAND_COLOR = '#D70F64';
 
 export default function LoginScreen({ navigation }) {

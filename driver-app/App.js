@@ -6,7 +6,7 @@ import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location'; // NEW: Import Location API!
 
 // ⚠️ CHANGE TO YOUR IP ADDRESS
-const API_URL = 'http://10.253.78.175:5000';
+const API_URL = 'https://food-ecosystem-api.onrender.com';
 
 // We put the socket OUTSIDE the component so it doesn't reconnect constantly
 const socket = io(API_URL, { transports:['websocket'] });

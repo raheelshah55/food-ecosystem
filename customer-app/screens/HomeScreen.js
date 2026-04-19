@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, TextInput, ScrollVi
 import axios from 'axios';
 
 // ⚠️ CHANGE THIS TO YOUR IP ADDRESS
-const API_URL = 'http://10.253.78.175:5000'; 
+const API_URL = 'https://food-ecosystem-api.onrender.com'; 
 const BRAND_COLOR = '#D70F64';
 
 export default function HomeScreen({ navigation }) {

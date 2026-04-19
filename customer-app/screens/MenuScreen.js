@@ -4,7 +4,7 @@ import axios from 'axios';
 import { CartContext } from '../CartContext';
 
 // ⚠️ CHANGE TO YOUR IP
-const API_URL = 'http://10.253.78.175:5000';
+const API_URL = 'https://food-ecosystem-api.onrender.com';
 const FOODPANDA_PINK = '#D70F64';
 
 export default function MenuScreen({ route, navigation }) {
