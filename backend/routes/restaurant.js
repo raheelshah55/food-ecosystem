@@ -2,7 +2,7 @@ const express = require('express');
 const Restaurant = require('../models/Restaurant');
 const verifyToken = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload'); // NEW: Import the Uploader!
-
+// for update
 const router = express.Router();
 
 // --- CREATE A RESTAURANT WITH IMAGE ---
