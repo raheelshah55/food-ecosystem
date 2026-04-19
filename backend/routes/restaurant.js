@@ -1,5 +1,5 @@
 const express = require('express');
-const Restaurant = require('../models/restaurant');
+const Restaurant = require('../models/Restaurant');
 const verifyToken = require('../middleware/authMiddleware');
 const upload = require('../middleware/upload'); // NEW: Import the Uploader!
 

@@ -1,5 +1,5 @@
 const express = require('express');
-const MenuItem = require('../models/menuItem');
+const MenuItem = require('../models/MenuItem');
 const verifyToken = require('../middleware/authMiddleware'); // Our Bouncer
 
 const router = express.Router();

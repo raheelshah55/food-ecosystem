@@ -1,6 +1,6 @@
 const express = require('express');
-const Order = require('../models/order');
-const Restaurant = require('../models/restaurant');
+const Order = require('../models/Order');
+const Restaurant = require('../models/Restaurant');
 const verifyToken = require('../middleware/authMiddleware');
 
 const router = express.Router();

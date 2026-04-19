@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const User = require('../models/User');
 const verifyToken = require('../middleware/authMiddleware'); // Security bouncer
 
 const router = express.Router();
