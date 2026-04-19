@@ -14,7 +14,7 @@ function Dashboard() {
         navigate('/');
         return;
       }
-      const response = await axios.get('http://localhost:5000/api/orders/restaurant-orders', {
+      const response = await axios.get('https://food-ecosystem-api.onrender.com/api/orders/restaurant-orders', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(response.data);
@@ -26,7 +26,7 @@ function Dashboard() {
   useEffect(() => {
     fetchOrders(); 
 
-    const socket = io('http://localhost:5000');
+    const socket = io('https://food-ecosystem-api.onrender.com');
     socket.on('orderUpdated', () => {
       fetchOrders(); 
     });
@@ -37,7 +37,7 @@ function Dashboard() {
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, 
+      await axios.put(`https://food-ecosystem-api.onrender.com/api/orders/${orderId}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

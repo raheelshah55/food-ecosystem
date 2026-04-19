@@ -22,10 +22,10 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const orderRes = await axios.get('http://localhost:5000/api/orders/admin/all', {
+      const orderRes = await axios.get('https://food-ecosystem-api.onrender.com/api/orders/admin/all', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const userRes = await axios.get('http://localhost:5000/api/auth/users', {
+      const userRes = await axios.get('https://food-ecosystem-api.onrender.com/api/auth/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setOrders(orderRes.data);
@@ -41,7 +41,7 @@ function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const response = await axios.post('https://food-ecosystem-api.onrender.com/api/auth/login', { email, password });
       if (response.data.user.role !== 'admin') {
         alert("Access Denied. You are not an admin!");
         return;
@@ -72,7 +72,7 @@ function App() {
       formData.append('address', newResAddress);
       formData.append('image', newResImage); // Attach the file!
 
-      await axios.post('http://localhost:5000/api/restaurants', formData, {
+      await axios.post('https://food-ecosystem-api.onrender.com/api/restaurants', formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data' // Tell backend a file is coming!
