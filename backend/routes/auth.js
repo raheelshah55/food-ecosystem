@@ -87,5 +87,15 @@ router.get('/users', verifyToken, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
-// forcing update
+// --- GET LOGGED IN USER'S PROFILE ---
+router.get('/me', verifyToken, async (req, res) => {
+    try {
+        // req.user comes from our security bouncer!
+        const user = await User.findById(req.user.userId).select('-password');
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
 module.exports = router;
